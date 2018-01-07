@@ -1,4 +1,5 @@
 #include "src/dryer.h"
+#include "program.h"
 
 #define DHT_PIN              2
 #define HEATER_PIN           8
@@ -17,5 +18,5 @@ void setup()
 
 void loop()
 {
-    // TODO
+    Serial.print(program[0][0]);
 }
