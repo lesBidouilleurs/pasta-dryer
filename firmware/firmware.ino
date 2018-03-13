@@ -1,19 +1,6 @@
+#include "parameters.h"
 #include "src/dryer.h"
 #include "program.h"
-
-#define DHT_PIN              2
-#define HEATER_PIN           8
-#define BIG_FAN_SUCK_PIN     9
-#define BIG_FAN_EXTRACT_PIN 10
-#define FAN_PIN             11
-
-#define VENTILATION 0
-#define PAUSE       1
-#define COOLING     2
-
-// 100ms semble un délais interressant pour ne rater aucun évènement
-// (bouton appuyé notament)
-#define TICK_TIME          100 //ms
 
 Dryer dryer(DHT_PIN, HEATER_PIN, BIG_FAN_SUCK_PIN, BIG_FAN_EXTRACT_PIN, FAN_PIN);
 unsigned short int curCycle;
@@ -39,7 +26,6 @@ void setup()
     dryer.init();
 
     setTargetedValues();
-
 }
 
 void loop()

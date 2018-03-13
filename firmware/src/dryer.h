@@ -15,26 +15,21 @@
 class Dryer
 {
 public:
-    Dryer(int dhtPin, int heaterPin, int bigFanSuckPin, int bigFanExtractPin, int fanPin);
-    void init(void);
-    void ticks(void);
-    float getTemperature(void);
-    float getHumidity(void);
-    void heatingOn(void);
-    void heatingOff(void);
-    void bigFanOff(void);
-    void bigFanExtract(void);
-    void bigfanSuck(void);
-    void fanOff(void);
-    void fanOn(void);
+    Dryer(int heaterPin, int bigFanSuckPin, int bigFanExtractPin, int fanExtractPin);
+
+    void startHeating(void);
+    void stopHeating(void);
+    void startDrying(void);
+    void stopDrying(void);
+    void leftStiring(void);
+    void rightStiring(void);
+    void stopStiring(void);
+    void stopAll(void);
 
 private:
-    DHT_Unified _dht;
-    uint32_t _delayMS;
-    int _dthPin;
     int _heaterPin;
-    int _bigFanSuckPin;
-    int _bigFanExtractPin;
+    int _bigFanRightPin;
+    int _bigFanLeftPin;
     int _fanPin;
 };
 

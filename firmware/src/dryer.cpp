@@ -1,12 +1,11 @@
 #include "dryer.h"
 
-Dryer::Dryer(int dhtPin, int heaterPin, int bigFanSuckPin, int bigFanExtractPin, int fanPin)
-  :_heaterPin(heaterPin), _bigFanSuckPin(bigFanSuckPin),_bigFanExtractPin(bigFanExtractPin), _fanPin(fanPin),  _dht(dhtPin, DHT22)
+Dryer::Dryer(int heaterPin, int bigFanSuckPin, int bigFanExtractPin, int fanPin)
+  :_heaterPin(heaterPin), _bigFanSuckPin(bigFanSuckPin),_bigFanExtractPin(bigFanExtractPin), _fanPin(fanPin)
 { }
 
 void Dryer::init()
 {
-    this->_dht.begin();
     pinMode(this->_heaterPin, OUTPUT);
     pinMode(this->_bigFanSuckPin, OUTPUT);
     pinMode(this->_bigFanExtractPin, OUTPUT);
@@ -14,26 +13,6 @@ void Dryer::init()
     this->bigFanOff();
     this->heatingOff();
     this->fanOff();
-}
-
-float Dryer::getTemperature()
-{
-    sensors_event_t event;
-    this->_dht.temperature().getEvent(&event);
-    if (isnan(event.temperature)) {
-        return 0.0;
-    }
-    return event.temperature;
-}
-
-float Dryer::getHumidity()
-{
-    sensors_event_t event;
-    this->_dht.humidity().getEvent(&event);
-    if (isnan(event.temperature)) {
-        return 0.0;
-    }
-    return event.temperature;
 }
 
 void Dryer::heatingOn(void)
@@ -56,7 +35,6 @@ void Dryer::bigFanExtract(void)
 {
     digitalWrite(this->_bigFanSuckPin, 1);
     digitalWrite(this->_bigFanExtractPin, 0);
-
 }
 
 void Dryer::bigfanSuck(void)
