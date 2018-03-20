@@ -11,6 +11,8 @@
 #define REST_HUMIDITY     5
 #define REST_TIME         6
 
+#define DELTA_TEMPERATURE 2
+#define DELTA_HUMIDITY    5
 
 // L'humidité est controlé par le petit ventilateur
 // la temperature par le chauffage
