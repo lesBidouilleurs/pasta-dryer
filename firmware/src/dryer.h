@@ -2,9 +2,6 @@
 #define PastaDryer_h
 
 #include "Arduino.h"
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
-#include <DHT_U.h>
 
 // TODO l'idée est de remplacer les méthodes concernant les
 // ventilateurs par des méthodes du type : "lowerHumidity", "refresh" qui
@@ -15,9 +12,9 @@
 class Dryer
 {
 public:
-    Dryer(int heaterPin, int bigFanSuckPin, int bigFanExtractPin, int fanExtractPin);
+    Dryer(int heaterPin, int bigFanLeftPin, int bigFanRightPin, int fanExtractPin);
 
-    void Dryer::init(void);
+    void init(void);
     void startHeating(void);
     void stopHeating(void);
     void startDrying(void);
@@ -31,7 +28,7 @@ private:
     int _heaterPin;
     int _bigFanRightPin;
     int _bigFanLeftPin;
-    int _fanPin;
+    int _fanExtractPin;
 };
 
 #endif

@@ -1,6 +1,11 @@
 #ifndef PastaSensor_h
 #define PastaDryer_h
 
+#include "Arduino.h"
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
+
 class Sensor
 {
 public:

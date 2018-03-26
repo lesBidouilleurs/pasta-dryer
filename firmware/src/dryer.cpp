@@ -1,54 +1,54 @@
 #include "dryer.h"
 
-Dryer::Dryer(int heaterPin, int bigFanSuckPin, int bigFanExtractPin, int fanPin)
-  :_heaterPin(heaterPin), _bigFanSuckPin(bigFanSuckPin),_bigFanExtractPin(bigFanExtractPin), _fanPin(fanPin)
+Dryer::Dryer(int heaterPin, int bigFanLeftPin, int bigFanRightPin, int fanExtractPin)
+  :_heaterPin(heaterPin), _bigFanRightPin(bigFanRightPin),_bigFanLeftPin(bigFanLeftPin), _fanExtractPin(fanExtractPin)
 { }
 
 void Dryer::init(void)
 {
     pinMode(this->_heaterPin, OUTPUT);
-    pinMode(this->_bigFanSuckPin, OUTPUT);
-    pinMode(this->_bigFanExtractPin, OUTPUT);
-    pinMode(this->_fanPin, OUTPUT);
-    this->bigFanOff();
-    this->heatingOff();
-    this->fanOff();
+    pinMode(this->_bigFanRightPin, OUTPUT);
+    pinMode(this->_bigFanLeftPin, OUTPUT);
+    pinMode(this->_fanExtractPin, OUTPUT);
+    this->stopStiring();
+    this->stopHeating();
+    this->stopDrying();
 }
 
-void Dryer::heatingOn(void)
+void Dryer::startHeating(void)
 {
     digitalWrite(this->_heaterPin, 0);
 }
 
-void Dryer::heatingOff(void)
+void Dryer::stopHeating(void)
 {
     digitalWrite(this->_heaterPin, 1);
 }
 
-void Dryer::bigFanOff(void)
+void Dryer::stopStiring(void)
 {
-    digitalWrite(this->_bigFanSuckPin, 1);
-    digitalWrite(this->_bigFanExtractPin, 1);
+    digitalWrite(this->_bigFanRightPin, 1);
+    digitalWrite(this->_bigFanLeftPin, 1);
 }
 
-void Dryer::bigFanExtract(void)
+void Dryer::rightStiring(void)
 {
-    digitalWrite(this->_bigFanSuckPin, 1);
-    digitalWrite(this->_bigFanExtractPin, 0);
+    digitalWrite(this->_bigFanRightPin, 1);
+    digitalWrite(this->_bigFanLeftPin, 0);
 }
 
-void Dryer::bigfanSuck(void)
+void Dryer::leftStiring(void)
 {
-    digitalWrite(this->_bigFanSuckPin, 0);
-    digitalWrite(this->_bigFanExtractPin, 1);
+    digitalWrite(this->_bigFanRightPin, 0);
+    digitalWrite(this->_bigFanLeftPin, 1);
 }
 
-void Dryer::fanOff(void)
+void Dryer::startDrying(void)
 {
-    digitalWrite(this->_fanPin, 1);
+    digitalWrite(this->_fanExtractPin, 1);
 }
 
-void Dryer::fanOn(void)
+void Dryer::stopDrying(void)
 {
-    digitalWrite(this->_fanPin, 0);
+    digitalWrite(this->_fanExtractPin, 0);
 }
