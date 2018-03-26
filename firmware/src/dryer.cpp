@@ -4,7 +4,7 @@ Dryer::Dryer(int heaterPin, int bigFanSuckPin, int bigFanExtractPin, int fanPin)
   :_heaterPin(heaterPin), _bigFanSuckPin(bigFanSuckPin),_bigFanExtractPin(bigFanExtractPin), _fanPin(fanPin)
 { }
 
-void Dryer::init()
+void Dryer::init(void)
 {
     pinMode(this->_heaterPin, OUTPUT);
     pinMode(this->_bigFanSuckPin, OUTPUT);

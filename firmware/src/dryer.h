@@ -17,6 +17,7 @@ class Dryer
 public:
     Dryer(int heaterPin, int bigFanSuckPin, int bigFanExtractPin, int fanExtractPin);
 
+    void Dryer::init(void);
     void startHeating(void);
     void stopHeating(void);
     void startDrying(void);

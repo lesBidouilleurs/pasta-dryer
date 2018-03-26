@@ -3,13 +3,13 @@
 
 #define CYCLES_COUNT        10
 
-#define VENTILATION_HEAT     0
-#define VENTILATION_HUMIDITY 1
-#define VENTILATION_TIME     2 // A diviser en deux, un sens puis l'autre
-#define PAUSE_TIME           3 // Minute de pause entre les deux sens précédent
-#define REST_HEAT         4
-#define REST_HUMIDITY     5
-#define REST_TIME         6
+#define VENTILATING_HEAT     0
+#define VENTILATING_HUMIDITY 1
+#define VENTILATING_TIME     2 // A diviser en deux, un sens puis l'autre
+#define VENTILATING_PAUSE    3 // Minute de pause entre les deux sens précédent
+#define RESTING_HEAT         4
+#define RESTING_HUMIDITY     5
+#define RESTING_TIME         6
 
 #define DELTA_TEMPERATURE 2
 #define DELTA_HUMIDITY    5
