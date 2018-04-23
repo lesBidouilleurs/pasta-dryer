@@ -1,10 +1,10 @@
 #include "configuration.h"
 #include "src/dryer.h"
-#include "src/sensor.h"
+#include "src/dummysensor.h"
 #include "program.h"
 
 Dryer dryer(HEATER_PIN, BIG_FAN_LEFT_PIN, BIG_FAN_RIGHT_PIN, FAN_PIN);
-Sensor sensor(DHT_PIN);
+DummySensor sensor; //DHT_PIN
 unsigned short int curCycle;
 unsigned short int state;
 unsigned int tickCount;
@@ -21,20 +21,20 @@ void setTargetedValues() {
     if (state == VENTILATING) {
         targetedTemperature = program[curCycle][VENTILATING_HEAT];
         targetedHumidity = program[curCycle][VENTILATING_HUMIDITY];
-        stateTickMax = program[curCycle][VENTILATING_TIME] * 60000 / TICK_TIME;
-        stateTickStartPause = ((program[curCycle][VENTILATING_TIME] - program[curCycle][VENTILATING_PAUSE]) / 2) * 60000 / TICK_TIME ;
+        stateTickMax = program[curCycle][VENTILATING_TIME] * TIME_CONVERTER / TICK_TIME;
+        stateTickStartPause = ((program[curCycle][VENTILATING_TIME] - program[curCycle][VENTILATING_PAUSE]) / 2)
+                              * TIME_CONVERTER / TICK_TIME ;
         stateTickEndPause = stateTickStartPause
-                            + (program[curCycle][VENTILATING_TIME]  * 60000 / TICK_TIME);
+                            + (program[curCycle][VENTILATING_TIME]  * TIME_CONVERTER / TICK_TIME);
     }
 
     if (state == RESTING) {
         targetedTemperature = program[curCycle][RESTING_HEAT];
         targetedHumidity = program[curCycle][RESTING_HUMIDITY];
-        stateTickMax = program[curCycle][RESTING_TIME] * 60000 / TICK_TIME;
+        stateTickMax = program[curCycle][RESTING_TIME] * TIME_CONVERTER / TICK_TIME;
         stateTickStartPause = 0;
         stateTickEndPause = 0;
     }
-
 }
 
 void setup()
@@ -45,7 +45,7 @@ void setup()
     stateTickEndPause = 0;
     state = VENTILATING;
     Serial.begin(9600);
-    sensor.init();
+    //sensor.init();
     dryer.init();
 
     setTargetedValues();

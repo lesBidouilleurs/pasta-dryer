@@ -13,6 +13,8 @@
 #define LEFT  0
 #define RIGHT 1
 
+#define TIME_CONVERTER 60000
+
 // 100ms semble un délais interressant pour ne rater aucun évènement
 // (bouton appuyé notament)
 #define TICK_TIME          100 //ms
