@@ -27,20 +27,20 @@ void Dryer::stopHeating(void)
 
 void Dryer::stopStiring(void)
 {
-    digitalWrite(this->_bigFanRightPin, 1);
-    digitalWrite(this->_bigFanLeftPin, 1);
+    digitalWrite(this->_bigFanRightPin, 0);
+    digitalWrite(this->_bigFanLeftPin, 0);
 }
 
 void Dryer::rightStiring(void)
 {
-    digitalWrite(this->_bigFanRightPin, 1);
-    digitalWrite(this->_bigFanLeftPin, 0);
+    digitalWrite(this->_bigFanRightPin, 0);
+    digitalWrite(this->_bigFanLeftPin, 1);
 }
 
 void Dryer::leftStiring(void)
 {
-    digitalWrite(this->_bigFanRightPin, 0);
-    digitalWrite(this->_bigFanLeftPin, 1);
+    digitalWrite(this->_bigFanRightPin, 1);
+    digitalWrite(this->_bigFanLeftPin, 0);
 }
 
 void Dryer::startDrying(void)

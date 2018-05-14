@@ -25,7 +25,7 @@ void setTargetedValues() {
         stateTickStartPause = ((program[curCycle][VENTILATING_TIME] - program[curCycle][VENTILATING_PAUSE]) / 2)
                               * TIME_CONVERTER / TICK_TIME ;
         stateTickEndPause = stateTickStartPause
-                            + (program[curCycle][VENTILATING_TIME]  * TIME_CONVERTER / TICK_TIME);
+                            + (program[curCycle][VENTILATING_PAUSE]  * TIME_CONVERTER / TICK_TIME);
     }
 
     if (state == RESTING) {
@@ -44,7 +44,7 @@ void setup()
     stateTickStartPause = 0;
     stateTickEndPause = 0;
     state = VENTILATING;
-    Serial.begin(9600);
+    Serial.begin(115200);
     //sensor.init();
     dryer.init();
 
@@ -58,44 +58,72 @@ void loop()
     // TICK_TIME
     if (tickCount % 10 == 0) {
         // TODO Action si l'humidité ou la chaleur ne correspond pas
-        temperature = sensor.getTemperature();
-        humidity = sensor.getHumidity();
 
+        temperature = (int)sensor.getTemperature();
+        humidity = (int)sensor.getHumidity();
+        Serial.println(); Serial.println(); Serial.println();
+        Serial.print("Température : "); Serial.println(temperature);
+        Serial.print("Humidité :    "); Serial.println(humidity); 
+        
         if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
+            Serial.print("chauffage allumé, cible :"); Serial.println(targetedTemperature);
             dryer.startHeating();
         }
 
         if (temperature > (targetedTemperature + DELTA_TEMPERATURE)) {
+            Serial.print("chauffage éteint, cible :"); Serial.println(targetedTemperature);
             dryer.stopHeating();
         }
 
         if (humidity < (targetedHumidity - DELTA_HUMIDITY)) {
+            Serial.print("Séchage arrété, cible :"); Serial.println(targetedHumidity);
             dryer.stopDrying();
         }
 
         if (humidity > (targetedHumidity + DELTA_HUMIDITY)) {
+            Serial.print("Séchage allumé, cible : "); Serial.println(targetedHumidity);
             dryer.startDrying();
         }
 
+        if (state == RESTING) {
+          Serial.println("État : repos");
+        }
+
+       if (state == VENTILATING) {
+        Serial.println("État : remuage");
+       }
+
     }
+
+    Serial.print("Début pause : "); Serial.println(stateTickStartPause);
+    Serial.print("Fin pause : "); Serial.println(stateTickEndPause);
+    Serial.print("Fin cycle : "); Serial.println(stateTickMax);
+    Serial.println();
+    Serial.print("tick : ");Serial. println(tickCount);
 
     if (state == VENTILATING) {
         if (tickCount < stateTickStartPause)
         {
             dryer.rightStiring();
+            Serial.println("Tourne à droite"); 
         }
 
         if (tickCount >= stateTickStartPause
             and tickCount < stateTickEndPause
         ) {
             dryer.stopStiring();
+            Serial.println("Ne tourne pas");
         }
 
         if (tickCount >= stateTickEndPause
         ) {
             dryer.leftStiring();
+            Serial.println("Tourne à gauche");
         }
     }
+
+  
+   
 
     // Changement d'état si necessaire (ventilation, pause, refroidissement)
     if (tickCount >= stateTickMax) {
@@ -105,6 +133,7 @@ void loop()
         if (state == RESTING) {
             curCycle++; // On passe au cycle suivant.
             setTargetedValues();
+            dryer.stopStiring();
             state == VENTILATING;
         }
 
