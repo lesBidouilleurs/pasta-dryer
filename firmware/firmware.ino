@@ -1,7 +1,10 @@
+#include <LiquidCrystal_I2C.h>
+
 #include "configuration.h"
 #include "src/dryer.h"
 #include "src/dummysensor.h"
 #include "program.h"
+#include "lcd_screen.h"
 
 Dryer dryer(HEATER_PIN, BIG_FAN_LEFT_PIN, BIG_FAN_RIGHT_PIN, FAN_PIN);
 DummySensor sensor; //DHT_PIN
@@ -16,6 +19,7 @@ unsigned int targetedTemperature;
 unsigned int targetedHumidity;
 unsigned int temperature;
 unsigned int humidity;
+
 
 void setTargetedValues() {
     if (state == VENTILATING) {
@@ -47,8 +51,11 @@ void setup()
     Serial.begin(115200);
     //sensor.init();
     dryer.init();
+    lcd_initialisation();
+    
 
     setTargetedValues();
+ 
 }
 
 void loop()
@@ -87,10 +94,12 @@ void loop()
 
         if (state == RESTING) {
           Serial.println("État : repos");
+          lcd_affiche_statut("repos");
         }
 
        if (state == VENTILATING) {
         Serial.println("État : remuage");
+        lcd_affiche_statut("Sechage");
        }
 
     }
@@ -100,12 +109,15 @@ void loop()
     Serial.print("Fin cycle : "); Serial.println(stateTickMax);
     Serial.println();
     Serial.print("tick : ");Serial. println(tickCount);
-
+    lcd_fin_cycle(stateTickMax);
+    lcd_affiche_temps(tickCount);
+    lcd_fin_cycle(stateTickMax);
     if (state == VENTILATING) {
         if (tickCount < stateTickStartPause)
         {
             dryer.rightStiring();
             Serial.println("Tourne à droite"); 
+            lcd_affiche_ventilation("normale");
         }
 
         if (tickCount >= stateTickStartPause
@@ -113,12 +125,14 @@ void loop()
         ) {
             dryer.stopStiring();
             Serial.println("Ne tourne pas");
+            lcd_affiche_ventilation("off");
         }
 
         if (tickCount >= stateTickEndPause
         ) {
             dryer.leftStiring();
             Serial.println("Tourne à gauche");
+            lcd_affiche_ventilation("inverse");
         }
     }
 
@@ -142,7 +156,8 @@ void loop()
             state == RESTING;
         }
     }
-
+    
     delay(TICK_TIME);
     tickCount++;
+    
 }
