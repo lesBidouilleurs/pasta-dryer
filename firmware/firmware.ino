@@ -62,8 +62,6 @@ void loop()
     // TODO Faire en sorte que ce soit indépendant de la la valeur de
     // TICK_TIME
     if (tickCount % 10 == 0) {
-        // TODO Action si l'humidité ou la chaleur ne correspond pas
-
         temperature = (int)sensor.getTemperature();
         humidity = (int)sensor.getHumidity();
         Serial.println(); Serial.println(); Serial.println();
