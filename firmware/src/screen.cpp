@@ -1,6 +1,6 @@
 #include "screen.h"
 
-Screen::Screen() : _lcd(0x3F, 20, 4)
+Screen::Screen(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows) : _lcd(lcd_Addr, lcd_cols, lcd_rows)
 { }
 
 void Screen::init()

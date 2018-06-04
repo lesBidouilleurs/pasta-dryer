@@ -6,7 +6,7 @@
 class Screen
 {
 public:
-    Screen();
+    Screen(uint8_t lcd_Addr, uint8_t lcd_cols, uint8_t lcd_rows);
     void init(void);
     void printStatus(const char *statut);
     void printVentilation(const char *statut);

@@ -7,7 +7,7 @@
 
 Dryer dryer(HEATER_PIN, BIG_FAN_LEFT_PIN, BIG_FAN_RIGHT_PIN, FAN_PIN);
 DummySensor sensor; //DHT_PIN
-Screen screen;
+Screen screen(SCREEN_ADDRESS, SCREEN_NB_COLUMNS, SCREEN_NB_ROWS);
 
 unsigned short int curCycle;
 unsigned short int state;
