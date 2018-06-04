@@ -1,10 +1,14 @@
-#include "configuration.h"
 #include "src/dryer.h"
 #include "src/sensor.h"
+#include "src/screen.h"
+
+#include "configuration.h"
 #include "program.h"
 
 Dryer dryer(HEATER_PIN, BIG_FAN_LEFT_PIN, BIG_FAN_RIGHT_PIN, FAN_PIN);
-Sensor sensor(DHT_PIN);
+Sensor sensor(DHT_PIN); //DHT_PIN
+Screen screen(SCREEN_ADDRESS, SCREEN_NB_COLUMNS, SCREEN_NB_ROWS);
+
 unsigned short int curCycle;
 unsigned short int state;
 unsigned int tickCount;
@@ -17,24 +21,25 @@ unsigned int targetedHumidity;
 unsigned int temperature;
 unsigned int humidity;
 
+
 void setTargetedValues() {
     if (state == VENTILATING) {
         targetedTemperature = program[curCycle][VENTILATING_HEAT];
         targetedHumidity = program[curCycle][VENTILATING_HUMIDITY];
-        stateTickMax = program[curCycle][VENTILATING_TIME] * 60000 / TICK_TIME;
-        stateTickStartPause = ((program[curCycle][VENTILATING_TIME] - program[curCycle][VENTILATING_PAUSE]) / 2) * 60000 / TICK_TIME ;
+        stateTickMax = program[curCycle][VENTILATING_TIME] * TIME_CONVERTER / TICK_TIME;
+        stateTickStartPause = ((program[curCycle][VENTILATING_TIME] - program[curCycle][VENTILATING_PAUSE]) / 2)
+                              * TIME_CONVERTER / TICK_TIME ;
         stateTickEndPause = stateTickStartPause
-                            + (program[curCycle][VENTILATING_TIME]  * 60000 / TICK_TIME);
+                            + (program[curCycle][VENTILATING_PAUSE]  * TIME_CONVERTER / TICK_TIME);
     }
 
     if (state == RESTING) {
         targetedTemperature = program[curCycle][RESTING_HEAT];
         targetedHumidity = program[curCycle][RESTING_HUMIDITY];
-        stateTickMax = program[curCycle][RESTING_TIME] * 60000 / TICK_TIME;
+        stateTickMax = program[curCycle][RESTING_TIME] * TIME_CONVERTER / TICK_TIME;
         stateTickStartPause = 0;
         stateTickEndPause = 0;
     }
-
 }
 
 void setup()
@@ -44,10 +49,10 @@ void setup()
     stateTickStartPause = 0;
     stateTickEndPause = 0;
     state = VENTILATING;
-    Serial.begin(9600);
+    Serial.begin(115200);
     sensor.init();
     dryer.init();
-
+    screen.init();
     setTargetedValues();
 }
 
@@ -57,9 +62,8 @@ void loop()
     // TODO Faire en sorte que ce soit indépendant de la la valeur de
     // TICK_TIME
     if (tickCount % 10 == 0) {
-        // TODO Action si l'humidité ou la chaleur ne correspond pas
-        temperature = sensor.getTemperature();
-        humidity = sensor.getHumidity();
+        temperature = (int)sensor.getTemperature();
+        humidity = (int)sensor.getHumidity();
 
         if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
             dryer.startHeating();
@@ -77,23 +81,37 @@ void loop()
             dryer.startDrying();
         }
 
+        if (state == RESTING) {
+            screen.printStatus("repos");
+        }
+
+        if (state == VENTILATING) {
+            screen.printStatus("Sechage");
+        }
     }
+
+    screen.endCycle(stateTickMax);
+    screen.printTime(tickCount);
+    screen.endCycle(stateTickMax);
 
     if (state == VENTILATING) {
         if (tickCount < stateTickStartPause)
         {
             dryer.rightStiring();
+            screen.printVentilation("normale");
         }
 
         if (tickCount >= stateTickStartPause
             and tickCount < stateTickEndPause
         ) {
             dryer.stopStiring();
+            screen.printVentilation("off");
         }
 
         if (tickCount >= stateTickEndPause
         ) {
             dryer.leftStiring();
+            screen.printVentilation("inverse");
         }
     }
 
@@ -105,6 +123,7 @@ void loop()
         if (state == RESTING) {
             curCycle++; // On passe au cycle suivant.
             setTargetedValues();
+            dryer.stopStiring();
             state == VENTILATING;
         }
 
@@ -113,7 +132,6 @@ void loop()
             state == RESTING;
         }
     }
-
     delay(TICK_TIME);
     tickCount++;
 }
