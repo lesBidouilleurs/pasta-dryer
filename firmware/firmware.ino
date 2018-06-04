@@ -1,12 +1,12 @@
 #include "src/dryer.h"
-#include "src/dummysensor.h"
+#include "src/sensor.h"
 #include "src/screen.h"
 
 #include "configuration.h"
 #include "program.h"
 
 Dryer dryer(HEATER_PIN, BIG_FAN_LEFT_PIN, BIG_FAN_RIGHT_PIN, FAN_PIN);
-DummySensor sensor; //DHT_PIN
+Sensor sensor(DHT_PIN); //DHT_PIN
 Screen screen(SCREEN_ADDRESS, SCREEN_NB_COLUMNS, SCREEN_NB_ROWS);
 
 unsigned short int curCycle;
@@ -50,7 +50,7 @@ void setup()
     stateTickEndPause = 0;
     state = VENTILATING;
     Serial.begin(115200);
-    //sensor.init()
+    sensor.init();
     dryer.init();
     screen.init();
     setTargetedValues();
