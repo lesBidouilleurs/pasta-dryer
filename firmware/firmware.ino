@@ -64,55 +64,40 @@ void loop()
     if (tickCount % 10 == 0) {
         temperature = (int)sensor.getTemperature();
         humidity = (int)sensor.getHumidity();
-        Serial.println(); Serial.println(); Serial.println();
-        Serial.print("Température : "); Serial.println(temperature);
-        Serial.print("Humidité :    "); Serial.println(humidity);
 
         if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
-            Serial.print("chauffage allumé, cible :"); Serial.println(targetedTemperature);
             dryer.startHeating();
         }
 
         if (temperature > (targetedTemperature + DELTA_TEMPERATURE)) {
-            Serial.print("chauffage éteint, cible :"); Serial.println(targetedTemperature);
             dryer.stopHeating();
         }
 
         if (humidity < (targetedHumidity - DELTA_HUMIDITY)) {
-            Serial.print("Séchage arrété, cible :"); Serial.println(targetedHumidity);
             dryer.stopDrying();
         }
 
         if (humidity > (targetedHumidity + DELTA_HUMIDITY)) {
-            Serial.print("Séchage allumé, cible : "); Serial.println(targetedHumidity);
             dryer.startDrying();
         }
 
         if (state == RESTING) {
-          Serial.println("État : repos");
-          screen.printStatus("repos");
+            screen.printStatus("repos");
         }
 
-       if (state == VENTILATING) {
-        Serial.println("État : remuage");
-        screen.printStatus("Sechage");
-       }
-
+        if (state == VENTILATING) {
+            screen.printStatus("Sechage");
+        }
     }
 
-    Serial.print("Début pause : "); Serial.println(stateTickStartPause);
-    Serial.print("Fin pause : "); Serial.println(stateTickEndPause);
-    Serial.print("Fin cycle : "); Serial.println(stateTickMax);
-    Serial.println();
-    Serial.print("tick : ");Serial. println(tickCount);
     screen.endCycle(stateTickMax);
     screen.printTime(tickCount);
     screen.endCycle(stateTickMax);
+
     if (state == VENTILATING) {
         if (tickCount < stateTickStartPause)
         {
             dryer.rightStiring();
-            Serial.println("Tourne à droite");
             screen.printVentilation("normale");
         }
 
@@ -120,14 +105,12 @@ void loop()
             and tickCount < stateTickEndPause
         ) {
             dryer.stopStiring();
-            Serial.println("Ne tourne pas");
             screen.printVentilation("off");
         }
 
         if (tickCount >= stateTickEndPause
         ) {
             dryer.leftStiring();
-            Serial.println("Tourne à gauche");
             screen.printVentilation("inverse");
         }
     }
@@ -149,8 +132,6 @@ void loop()
             state == RESTING;
         }
     }
-
     delay(TICK_TIME);
     tickCount++;
-
 }
