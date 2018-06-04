@@ -1,13 +1,14 @@
-#include <LiquidCrystal_I2C.h>
-
-#include "configuration.h"
 #include "src/dryer.h"
 #include "src/dummysensor.h"
+#include "src/screen.h"
+
+#include "configuration.h"
 #include "program.h"
-#include "lcd_screen.h"
 
 Dryer dryer(HEATER_PIN, BIG_FAN_LEFT_PIN, BIG_FAN_RIGHT_PIN, FAN_PIN);
 DummySensor sensor; //DHT_PIN
+Screen screen;
+
 unsigned short int curCycle;
 unsigned short int state;
 unsigned int tickCount;
@@ -49,13 +50,10 @@ void setup()
     stateTickEndPause = 0;
     state = VENTILATING;
     Serial.begin(115200);
-    //sensor.init();
+    //sensor.init()
     dryer.init();
-    lcd_initialisation();
-    
-
+    screen.init();
     setTargetedValues();
- 
 }
 
 void loop()
@@ -70,8 +68,8 @@ void loop()
         humidity = (int)sensor.getHumidity();
         Serial.println(); Serial.println(); Serial.println();
         Serial.print("Température : "); Serial.println(temperature);
-        Serial.print("Humidité :    "); Serial.println(humidity); 
-        
+        Serial.print("Humidité :    "); Serial.println(humidity);
+
         if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
             Serial.print("chauffage allumé, cible :"); Serial.println(targetedTemperature);
             dryer.startHeating();
@@ -94,12 +92,12 @@ void loop()
 
         if (state == RESTING) {
           Serial.println("État : repos");
-          lcd_affiche_statut("repos");
+          screen.printStatus("repos");
         }
 
        if (state == VENTILATING) {
         Serial.println("État : remuage");
-        lcd_affiche_statut("Sechage");
+        screen.printStatus("Sechage");
        }
 
     }
@@ -109,15 +107,15 @@ void loop()
     Serial.print("Fin cycle : "); Serial.println(stateTickMax);
     Serial.println();
     Serial.print("tick : ");Serial. println(tickCount);
-    lcd_fin_cycle(stateTickMax);
-    lcd_affiche_temps(tickCount);
-    lcd_fin_cycle(stateTickMax);
+    screen.endCycle(stateTickMax);
+    screen.printTime(tickCount);
+    screen.endCycle(stateTickMax);
     if (state == VENTILATING) {
         if (tickCount < stateTickStartPause)
         {
             dryer.rightStiring();
-            Serial.println("Tourne à droite"); 
-            lcd_affiche_ventilation("normale");
+            Serial.println("Tourne à droite");
+            screen.printVentilation("normale");
         }
 
         if (tickCount >= stateTickStartPause
@@ -125,19 +123,16 @@ void loop()
         ) {
             dryer.stopStiring();
             Serial.println("Ne tourne pas");
-            lcd_affiche_ventilation("off");
+            screen.printVentilation("off");
         }
 
         if (tickCount >= stateTickEndPause
         ) {
             dryer.leftStiring();
             Serial.println("Tourne à gauche");
-            lcd_affiche_ventilation("inverse");
+            screen.printVentilation("inverse");
         }
     }
-
-  
-   
 
     // Changement d'état si necessaire (ventilation, pause, refroidissement)
     if (tickCount >= stateTickMax) {
@@ -156,8 +151,8 @@ void loop()
             state == RESTING;
         }
     }
-    
+
     delay(TICK_TIME);
     tickCount++;
-    
+
 }
