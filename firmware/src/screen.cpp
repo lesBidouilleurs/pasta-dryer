@@ -5,8 +5,9 @@ Screen::Screen(uint8_t lcd_Addr,uint8_t lcd_cols,uint8_t lcd_rows) : _lcd(lcd_Ad
 
 void Screen::init()
 {
-    this->_lcd.init();
-    this->_lcd.backlight();
+	this->_lcd.init();
+	this->_lcd.backlight();
+	this->_lcd.display();
 }
 
 void Screen::printStatus(const char *statut)
@@ -28,7 +29,7 @@ void Screen::printTime(int temps)
     this->_lcd.setCursor(0, 2);
     this->_lcd.print(" T: ");
     this->_lcd.print(temps);
-}
+} 
 
 void Screen::endCycle(int temps)
 {
@@ -40,4 +41,11 @@ void Screen::endCycle(int temps)
 void Screen::clear()
 {
     this->_lcd.clear();
+}
+
+void Screen::off()
+{
+	this->_lcd.noDisplay();
+	this->_lcd.home();
+	this->_lcd.noBacklight();
 }

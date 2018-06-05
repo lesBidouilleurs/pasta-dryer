@@ -4,6 +4,7 @@
 
 #include "configuration.h"
 #include "program.h"
+#include "src/fonction.h"
 
 Dryer dryer(HEATER_PIN, BIG_FAN_LEFT_PIN, BIG_FAN_RIGHT_PIN, FAN_PIN);
 Sensor sensor(DHT_PIN); //DHT_PIN
@@ -61,6 +62,8 @@ void loop()
     // Vérification des mesures toutes les secondes (et si non pause).
     // TODO Faire en sorte que ce soit indépendant de la la valeur de
     // TICK_TIME
+
+   if (is_on() ==  true){
     if (tickCount % 10 == 0) {
         temperature = (int)sensor.getTemperature();
         humidity = (int)sensor.getHumidity();
@@ -125,7 +128,7 @@ void loop()
             setTargetedValues();
             dryer.stopStiring();
             state == VENTILATING;
-        }
+        } 
 
         if (state == VENTILATING) {
             setTargetedValues();
@@ -134,4 +137,8 @@ void loop()
     }
     delay(TICK_TIME);
     tickCount++;
+   }else{ // le bonton est sur off
+    pushReset();
+    screen.off();
+   }
 }

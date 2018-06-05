@@ -13,6 +13,7 @@ public:
     void printTime(int temps);
     void endCycle(int temps);
     void clear(void);
+	void off(void);
 
 private:
     LiquidCrystal_I2C _lcd;
