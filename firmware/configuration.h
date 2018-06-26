@@ -21,8 +21,7 @@
 #define SCREEN_NB_COLUMNS    20
 #define SCREEN_NB_ROWS       4
 
-#define TIME_CONVERTER 3000
-//#define TIME_CONVERTER 60000
+#define TIME_CONVERTER 60000
 
 // 100ms semble un délais interressant pour ne rater aucun évènement
 // (bouton appuyé notament)

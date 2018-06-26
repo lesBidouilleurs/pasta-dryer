@@ -14,6 +14,7 @@ unsigned short int curCycle;
 unsigned short int state;
 unsigned short int ventilation;
 unsigned int tickCount;
+unsigned int totalTickCount;
 unsigned int stateTickStartPause; // Nombre de tick avant la pause (VENTILATING)
 unsigned int stateTickEndPause; // Nombre de tick pour la fin de la pause (VENTILATING)
 unsigned int stateTickMax; // Nombre de tick pour le cyle en cours (VENTILATING / RESTING)
@@ -55,6 +56,7 @@ int getTotalTime() {
 void setup()
 {
     tickCount = 0;
+    totalTickCount = 0;
     curCycle = 0;
     stateTickStartPause = 0;
     stateTickEndPause = 0;
@@ -69,6 +71,7 @@ void setup()
 
 void loop()
 {
+    unsigned long time = millis();
 
     if (is_on() ==  false) { // le bonton est sur off
         pushReset();
@@ -79,11 +82,12 @@ void loop()
     // Vérification des mesures toutes les secondes (et si non pause).
     // TODO Faire en sorte que ce soit indépendant de la la valeur de
     // TICK_TIME
+
     if (tickCount % 10 == 0) {
         temperature = (int)sensor.getTemperature();
         humidity = (int)sensor.getHumidity();
 
-        screen.update(state, ventilation, stateTickMax, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, getTotalTime());
+        screen.update(state, ventilation, stateTickMax, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, totalTickCount, getTotalTime());
 
         if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
             dryer.startHeating();
@@ -142,6 +146,8 @@ void loop()
             state == RESTING;
         }
     }
-    delay(TICK_TIME);
+    delay(TICK_TIME - (int)(millis() - time)); // prend en compte la durée de l'execution
+                                          // du code pour améliorer la précision.
     tickCount++;
+    totalTickCount++;
 }
