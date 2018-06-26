@@ -74,7 +74,7 @@ void loop()
         temperature = (int)sensor.getTemperature();
         humidity = (int)sensor.getHumidity();
 
-        screen.update(state, ventilation, stateTickMax, tickCount, temperature, humidity, targetedTemperature, targetedHumidity);
+        screen.update(state, ventilation, stateTickMax, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle);
 
         if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
             dryer.startHeating();
