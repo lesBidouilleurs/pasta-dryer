@@ -13,8 +13,9 @@
 #define VENTILATING 0
 #define RESTING     1
 
-#define LEFT  0
-#define RIGHT 1
+#define OFF   0
+#define LEFT  1
+#define RIGHT 2
 
 #define SCREEN_ADDRESS       0x3F
 #define SCREEN_NB_COLUMNS    20

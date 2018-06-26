@@ -3,12 +3,6 @@
 
 #include "Arduino.h"
 
-// TODO l'idée est de remplacer les méthodes concernant les
-// ventilateurs par des méthodes du type : "lowerHumidity", "refresh" qui
-// représente mieux les actions. Une meilleur compréhension des effets des
-// différents ventilateur (et de leur sens de rotation) est necessaires
-// pour définir ces méthodes
-
 class Dryer
 {
 public:

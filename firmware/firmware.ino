@@ -12,6 +12,7 @@ Screen screen(SCREEN_ADDRESS, SCREEN_NB_COLUMNS, SCREEN_NB_ROWS);
 
 unsigned short int curCycle;
 unsigned short int state;
+unsigned short int ventilation;
 unsigned int tickCount;
 unsigned int stateTickStartPause; // Nombre de tick avant la pause (VENTILATING)
 unsigned int stateTickEndPause; // Nombre de tick pour la fin de la pause (VENTILATING)
@@ -21,7 +22,6 @@ unsigned int targetedTemperature;
 unsigned int targetedHumidity;
 unsigned int temperature;
 unsigned int humidity;
-
 
 void setTargetedValues() {
     if (state == VENTILATING) {
@@ -50,6 +50,7 @@ void setup()
     stateTickStartPause = 0;
     stateTickEndPause = 0;
     state = VENTILATING;
+    ventilation = OFF;
     Serial.begin(115200);
     sensor.init();
     dryer.init();
@@ -59,14 +60,21 @@ void setup()
 
 void loop()
 {
+
+    if (is_on() ==  false) { // le bonton est sur off
+        pushReset();
+        screen.off();
+        return;
+    }
+
     // Vérification des mesures toutes les secondes (et si non pause).
     // TODO Faire en sorte que ce soit indépendant de la la valeur de
     // TICK_TIME
-
-   if (is_on() ==  true){
     if (tickCount % 10 == 0) {
         temperature = (int)sensor.getTemperature();
         humidity = (int)sensor.getHumidity();
+
+        screen.update(state, ventilation, stateTickMax, tickCount, temperature, humidity, targetedTemperature, targetedHumidity);
 
         if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
             dryer.startHeating();
@@ -83,39 +91,29 @@ void loop()
         if (humidity > (targetedHumidity + DELTA_HUMIDITY)) {
             dryer.startDrying();
         }
-
-        if (state == RESTING) {
-            screen.printStatus("repos");
-        }
-
-        if (state == VENTILATING) {
-            screen.printStatus("Sechage");
-        }
     }
 
-    screen.endCycle(stateTickMax);
-    screen.printTime(tickCount);
-    screen.endCycle(stateTickMax);
-
     if (state == VENTILATING) {
-        if (tickCount < stateTickStartPause)
-        {
+        if (tickCount < stateTickStartPause) {
             dryer.rightStiring();
-            screen.printVentilation("normale");
+            ventilation = LEFT;
         }
 
         if (tickCount >= stateTickStartPause
             and tickCount < stateTickEndPause
         ) {
             dryer.stopStiring();
-            screen.printVentilation("off");
+            ventilation = OFF;
         }
 
-        if (tickCount >= stateTickEndPause
-        ) {
+        if (tickCount >= stateTickEndPause) {
             dryer.leftStiring();
-            screen.printVentilation("inverse");
+            ventilation = RIGHT;
         }
+    }
+
+    if (state != VENTILATING) {
+        ventilation = OFF;
     }
 
     // Changement d'état si necessaire (ventilation, pause, refroidissement)
@@ -128,7 +126,7 @@ void loop()
             setTargetedValues();
             dryer.stopStiring();
             state == VENTILATING;
-        } 
+        }
 
         if (state == VENTILATING) {
             setTargetedValues();
@@ -137,8 +135,4 @@ void loop()
     }
     delay(TICK_TIME);
     tickCount++;
-   }else{ // le bonton est sur off
-    pushReset();
-    screen.off();
-   }
 }
