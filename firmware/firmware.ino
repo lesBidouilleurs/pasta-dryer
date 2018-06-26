@@ -43,6 +43,15 @@ void setTargetedValues() {
     }
 }
 
+int getTotalTime() {
+    int totalTime = 0;
+    int nbLines = sizeof(program) / 7 / sizeof(int);
+    for (size_t line = 0; line < nbLines; line++) {
+        totalTime += program[line][VENTILATING_TIME] + program[line][VENTILATING_PAUSE] + program[line][RESTING_TIME];
+    }
+    return totalTime;
+}
+
 void setup()
 {
     tickCount = 0;
@@ -74,7 +83,7 @@ void loop()
         temperature = (int)sensor.getTemperature();
         humidity = (int)sensor.getHumidity();
 
-        screen.update(state, ventilation, stateTickMax, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle);
+        screen.update(state, ventilation, stateTickMax, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, getTotalTime());
 
         if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
             dryer.startHeating();

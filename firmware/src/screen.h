@@ -9,12 +9,12 @@ class Screen
 public:
     Screen(uint8_t lcd_Addr, uint8_t lcd_cols, uint8_t lcd_rows);
     void init(void);
-    void update(int state, int ventilation, int endTickCount, int curTickCount, int temperature, int humidity, int targetedTemperature, int targetedHumidity, int curCycle);
+    void update(int state, int ventilation, int endTickCount, int curTickCount, int temperature, int humidity, int targetedTemperature, int targetedHumidity, int curCycle, int totalTime);
     void clear(void);
 	void off(void);
     void printTemperature(int temperature, int targetedTemperature);
     void printHumidity(int humidity, int targetedHumidity);
-    void printTime(int curTickCount, int endTickCount);
+    void printTime(int curTickCount, int endTickCount, int totalTime);
 
 private:
     LiquidCrystal_I2C _lcd;

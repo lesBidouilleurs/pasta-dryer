@@ -15,9 +15,9 @@ void Screen::clear()
     this->_lcd.clear();
 }
 
-void Screen::update(int state, int ventilation, int endTickCount, int curTickCount, int temperature, int humidity, int targetedTemperature, int targetedHumidity, int curCycle)
+void Screen::update(int state, int ventilation, int endTickCount, int curTickCount, int temperature, int humidity, int targetedTemperature, int targetedHumidity, int curCycle, int totalTime)
 {
-    this->_lcd.setCursor(1, 0);
+    this->_lcd.setCursor(0, 0);
     this->_lcd.print(this->_getStatus(state));
 
     this->_lcd.setCursor(11, 0);
@@ -25,7 +25,7 @@ void Screen::update(int state, int ventilation, int endTickCount, int curTickCou
 
     printTemperature(temperature, targetedTemperature);
     printHumidity(humidity, targetedHumidity);
-    printTime(curTickCount, endTickCount);
+    printTime(curTickCount, endTickCount, totalTime);
 
     this->_lcd.setCursor(1,3);
     this->_lcd.print("Cycle:");
@@ -52,17 +52,21 @@ void Screen::printHumidity(int humidity, int targetedHumidity)
     this->_lcd.print("%");
 }
 
-void Screen::printTime(int curTickCount, int endTickCount)
+void Screen::printTime(int curTickCount, int endTickCount, int totalTime)
 {
     int curMinute = (curTickCount * TICK_TIME) / 60000;
     int endMinute = (endTickCount * TICK_TIME) / 60000;
 
-    this->_lcd.setCursor(1, 2);
-    this->_lcd.print("Temps:");
+    this->_lcd.setCursor(0, 2);
+    this->_lcd.print("Tps:");
     this->_lcd.print(this->_intTo3char(curMinute));
     this->_lcd.print("/");
     this->_lcd.print(this->_intTo3char(endMinute));
-    this->_lcd.print("min");
+    this->_lcd.print("m ");
+    this->_lcd.print(this->_intTo3char(0));
+    this->_lcd.print("/");
+    this->_lcd.print(this->_intTo3char(totalTime));
+    this->_lcd.print("m");
 }
 
 const char *Screen::_getStatus(int status)
