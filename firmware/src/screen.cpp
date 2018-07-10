@@ -54,12 +54,12 @@ void Screen::printHumidity(int humidity, int targetedHumidity)
 
 void Screen::printTime(int curTickCount, int cycleDuration, int totalTickCount, int totalTime)
 {
-    int curMinute = (curTickCount * TICK_TIME) / TIME_CONVERTER;
-    int curTotalMinute = (totalTickCount * TICK_TIME) / TIME_CONVERTER;
+    int curMinute = curTickCount / (MIN_2_MS / TICK_TIME);
+    int curTotalMinute = totalTickCount / (MIN_2_MS / TICK_TIME);
 
     this->_lcd.setCursor(0, 2);
     this->_lcd.print("Tp:");
-    this->_print3digit(curTickCount * TICK_TIME / TIME_CONVERTER);
+    this->_print3digit(curMinute);
     this->_lcd.print("/");
     this->_print3digit(cycleDuration);
     this->_lcd.print("m ");
@@ -72,31 +72,31 @@ void Screen::printTime(int curTickCount, int cycleDuration, int totalTickCount, 
 const char *Screen::_getStatus(int status)
 {
     if (status == VENTILATING) {
-        return "Stat:Sech ";
+        return "Stat:Agit";
     }
 
     if (status == RESTING) {
-        return "Stat:repo ";
+        return "Stat:repo";
     }
 
-    return "Stat:Err  ";
+    return "Stat:Err ";
 }
 
 const char *Screen::_getVentilation(int ventilation)
 {
     if (ventilation == OFF) {
-        return "Vent:off ";
+        return "Vent:off";
     }
 
     if (ventilation == RIGHT) {
-        return "Vent:D   ";
+        return "Vent:D  ";
     }
 
     if (ventilation == LEFT) {
-        return "Vent:G   ";
+        return "Vent:G  ";
     }
 
-    return "Vent:Err ";
+    return "Vent:Err";
 }
 
 void Screen::_print2digit(int integer)

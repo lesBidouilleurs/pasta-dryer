@@ -13,40 +13,66 @@ Screen screen(SCREEN_ADDRESS, SCREEN_NB_COLUMNS, SCREEN_NB_ROWS);
 unsigned short int curCycle;
 unsigned short int state;
 unsigned short int ventilation;
+unsigned int drying;
+unsigned int heating;
+
 unsigned int tickCount;
 unsigned int totalTickCount;
-unsigned int stateTickStartPause; // Nombre de tick avant la pause (VENTILATING)
-unsigned int stateTickEndPause; // Nombre de tick pour la fin de la pause (VENTILATING)
-unsigned int stateTickMax; // Nombre de tick pour le cyle en cours (VENTILATING / RESTING)
-unsigned int cycleDuration;
+
+unsigned int ventilatingLeftTickCount;
+unsigned int ventilatingPauseTickCount;
+unsigned int ventilatingRightTickCount;
+unsigned int restingTickCount;
+unsigned int cycleTickCount;
+
+unsigned int cycleDuration; // Durée du cycle en minutes
 
 unsigned int targetedTemperature;
 unsigned int targetedHumidity;
 unsigned int temperature;
 unsigned int humidity;
 
-unsigned long time;
+unsigned long loopStartTime;
+
+int min2tick(int minutes) {
+    return minutes * (MIN_2_MS / TICK_TIME);
+}
+
+int tick2min(int ticks) {
+    return ticks / (MIN_2_MS / TICK_TIME);
+}
 
 void setTargetedValues() {
-    cycleDuration = program[curCycle][VENTILATING_TIME] + program[curCycle][RESTING_TIME];
-
-    if (state == VENTILATING) {
-        targetedTemperature = program[curCycle][VENTILATING_HEAT];
-        targetedHumidity = program[curCycle][VENTILATING_HUMIDITY];
-        stateTickMax = program[curCycle][VENTILATING_TIME] * TIME_CONVERTER / TICK_TIME;
-        stateTickStartPause = ((program[curCycle][VENTILATING_TIME] - program[curCycle][VENTILATING_PAUSE]) / 2)
-                              * TIME_CONVERTER / TICK_TIME ;
-        stateTickEndPause = stateTickStartPause
-                            + (program[curCycle][VENTILATING_PAUSE]  * TIME_CONVERTER / TICK_TIME);
-    }
-
     if (state == RESTING) {
         targetedTemperature = program[curCycle][RESTING_HEAT];
         targetedHumidity = program[curCycle][RESTING_HUMIDITY];
-        stateTickMax = program[curCycle][RESTING_TIME] * TIME_CONVERTER / TICK_TIME;
-        stateTickStartPause = 0;
-        stateTickEndPause = 0;
+
+        Serial.print("########################\n# REPOS\n########################\n");
+        Serial.print("Température cible : "); Serial.print(targetedTemperature); Serial.print("\n");
+        Serial.print("Humidité cible : "); Serial.print(targetedHumidity); Serial.print("\n\n\n");
+
+        return;
     }
+
+    targetedTemperature = program[curCycle][VENTILATING_HEAT];
+    targetedHumidity = program[curCycle][VENTILATING_HUMIDITY];
+
+    cycleDuration = program[curCycle][VENTILATING_TIME] + program[curCycle][RESTING_TIME];
+
+    ventilatingPauseTickCount = min2tick(program[curCycle][VENTILATING_PAUSE]);
+    ventilatingLeftTickCount = min2tick((program[curCycle][VENTILATING_TIME] - program[curCycle][VENTILATING_PAUSE]) / 2);
+    ventilatingRightTickCount = ventilatingLeftTickCount;
+    restingTickCount = min2tick(program[curCycle][VENTILATING_PAUSE]);
+    cycleTickCount = min2tick(cycleDuration);
+
+    Serial.print("########################\n# Nouveau cycle\n########################\n");
+    Serial.print("Température cible : "); Serial.print(targetedTemperature); Serial.print("\n");
+    Serial.print("Humidité cible : "); Serial.print(targetedHumidity); Serial.print("\n");
+    Serial.print("Durée cyle : "); Serial.print(cycleDuration); Serial.print("min / "); Serial.print(cycleTickCount); Serial.print("ticks \n");
+    Serial.print("Agitation a gauche : "); Serial.print(tick2min(ventilatingLeftTickCount)); Serial.print("min / "); Serial.print(ventilatingLeftTickCount); Serial.print("ticks \n");
+    Serial.print("Agitation a droite : "); Serial.print(tick2min(ventilatingRightTickCount)); Serial.print("min / "); Serial.print(ventilatingRightTickCount); Serial.print("ticks \n");
+    Serial.print("Pause agitation : "); Serial.print(tick2min(ventilatingPauseTickCount)); Serial.print("min / "); Serial.print(ventilatingPauseTickCount); Serial.print("ticks \n");
+    Serial.print("Temps repos : "); Serial.print(tick2min(restingTickCount)); Serial.print("min / "); Serial.print(restingTickCount); Serial.print("ticks \n\n\n");
 }
 
 int getTotalTime() {
@@ -63,15 +89,20 @@ void setup()
     tickCount = 0;
     totalTickCount = 0;
     curCycle = 0;
-    stateTickStartPause = 0;
-    stateTickEndPause = 0;
+    dryer.stopDrying();
+    dryer.stopStiring();
+    dryer.stopHeating();
     state = VENTILATING;
     ventilation = OFF;
+    heating = OFF;
+    drying = OFF;
     Serial.begin(115200);
     sensor.init();
     dryer.init();
     screen.init();
     setTargetedValues();
+
+    screen.update(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 
 void loop()
@@ -90,77 +121,77 @@ void loop()
         return;
     }*/
 
-    // Vérification des mesures toutes les secondes (et si non pause).
-    // TODO Faire en sorte que ce soit indépendant de la la valeur de
-    // TICK_TIME
-    time = millis();
+    loopStartTime = millis();
 
-    if (tickCount % 10 == 0) {
-        temperature = (int)sensor.getTemperature();
-        humidity = (int)sensor.getHumidity();
+    temperature = (int)sensor.getTemperature();
+    humidity = (int)sensor.getHumidity();
 
-        screen.update(state, ventilation, cycleDuration, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, totalTickCount, getTotalTime());
+    screen.update(state, ventilation, cycleDuration, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, totalTickCount, getTotalTime());
 
-        if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
-            dryer.startHeating();
-        }
+    if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
+        dryer.startHeating();
+        heating = ON;
+    }
 
-        if (temperature > (targetedTemperature + DELTA_TEMPERATURE)) {
-            dryer.stopHeating();
-        }
+    if (temperature > (targetedTemperature + DELTA_TEMPERATURE)) {
+        dryer.stopHeating();
+        heating = OFF;
+    }
 
-        if (humidity < (targetedHumidity - DELTA_HUMIDITY)) {
-            dryer.stopDrying();
-        }
+    if (humidity < (targetedHumidity - DELTA_HUMIDITY)) {
+        dryer.stopDrying();
+        drying = OFF;
+    }
 
-        if (humidity > (targetedHumidity + DELTA_HUMIDITY)) {
-            dryer.startDrying();
-        }
+    if (humidity > (targetedHumidity + DELTA_HUMIDITY)) {
+        dryer.startDrying();
+        drying = ON;
     }
 
     if (state == VENTILATING) {
-        if (tickCount < stateTickStartPause) {
-            dryer.rightStiring();
+        if (tickCount < ventilatingLeftTickCount) {
+            dryer.leftStiring();
             ventilation = LEFT;
         }
 
-        if (tickCount >= stateTickStartPause
-            and tickCount < stateTickEndPause
+        if (tickCount >= ventilatingLeftTickCount
+            and tickCount < (ventilatingLeftTickCount + ventilatingPauseTickCount)
         ) {
             dryer.stopStiring();
             ventilation = OFF;
         }
 
-        if (tickCount >= stateTickEndPause) {
-            dryer.leftStiring();
+        if (tickCount >= (ventilatingLeftTickCount + ventilatingPauseTickCount)) {
+            dryer.rightStiring();
             ventilation = RIGHT;
         }
-    }
 
-    if (state != VENTILATING) {
-        dryer.stopStiring();
-        ventilation = OFF;
-    }
-
-    // Changement d'état si necessaire (ventilation, pause, refroidissement)
-    if (tickCount >= stateTickMax) {
-        state = (state + 1) % 3;
-        tickCount = 0; // On remet a zéro, plus simple pour les durée des cycles
-
-        if (state == RESTING) {
-            curCycle++; // On passe au cycle suivant.
-            setTargetedValues();
+        if (tickCount >= (ventilatingLeftTickCount + ventilatingRightTickCount + ventilatingPauseTickCount)) {
+            // Passe a repos
             dryer.stopStiring();
-            state == VENTILATING;
-        }
-
-        if (state == VENTILATING) {
+            ventilation = OFF;
+            state = RESTING;
             setTargetedValues();
-            state == RESTING;
+            delay(TICK_TIME - (millis() - loopStartTime));
+            tickCount++;
+            totalTickCount++;
+            return;
         }
     }
-    //delay(TICK_TIME - (int)(millis() - time)); // prend en compte la durée de l'execution
-                                          // du code pour améliorer la précision.
+
+    if (state == RESTING) {
+        if (tickCount >= cycleTickCount) {
+            // On passe au cycle suivant.
+            curCycle++;
+            state = VENTILATING;
+            setTargetedValues();
+            tickCount = 0;
+        }
+    }
+
+    //Serial.print("Attends : "); Serial.print(TICK_TIME - (millis() - loopStartTime)); Serial.print("\n\n");
+    delay(TICK_TIME - (millis() - loopStartTime));
+
     tickCount++;
     totalTickCount++;
 }

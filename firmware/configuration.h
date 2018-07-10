@@ -15,15 +15,17 @@
 #define OFF   0
 #define LEFT  1
 #define RIGHT 2
+#define ON    4
 
 #define SCREEN_ADDRESS       0x3F
 #define SCREEN_NB_COLUMNS    20
 #define SCREEN_NB_ROWS       4
 
-#define TIME_CONVERTER 6000
+//#define MIN_2_MS 60000 // Une minute est vraiment une minute
+#define MIN_2_MS 6000 // Une minute est 6s --> pour les tests.
 
 // 100ms semble un délais interressant pour ne rater aucun évènement
 // (bouton appuyé notament)
-#define TICK_TIME          100 //ms
+#define TICK_TIME          500 //ms
 
 #endif
