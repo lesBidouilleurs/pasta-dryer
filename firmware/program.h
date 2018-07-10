@@ -20,8 +20,6 @@
 // delta de 5% pour l'humidité
 // La deuxième partie du tableau c'est sans le gros ventilateur double sense brasseur
 
-
-
 int program[CYCLES_COUNT][7] = {
     {40, 85, 20,  1, 38, 75, 5},
     {40, 80, 20,  1, 39, 75, 5},

@@ -18,13 +18,18 @@ unsigned int totalTickCount;
 unsigned int stateTickStartPause; // Nombre de tick avant la pause (VENTILATING)
 unsigned int stateTickEndPause; // Nombre de tick pour la fin de la pause (VENTILATING)
 unsigned int stateTickMax; // Nombre de tick pour le cyle en cours (VENTILATING / RESTING)
+unsigned int cycleDuration;
 
 unsigned int targetedTemperature;
 unsigned int targetedHumidity;
 unsigned int temperature;
 unsigned int humidity;
 
+unsigned long time;
+
 void setTargetedValues() {
+    cycleDuration = program[curCycle][VENTILATING_TIME] + program[curCycle][RESTING_TIME];
+
     if (state == VENTILATING) {
         targetedTemperature = program[curCycle][VENTILATING_HEAT];
         targetedHumidity = program[curCycle][VENTILATING_HUMIDITY];
@@ -71,23 +76,30 @@ void setup()
 
 void loop()
 {
-    unsigned long time = millis();
 
-    if (is_on() ==  false) { // le bonton est sur off
-        pushReset();
+    /*if (is_on() ==  false) { // le bonton est sur off
+        //pushReset();
         screen.off();
+        tickCount = 0;
+        totalTickCount = 0;
+        curCycle = 0;
+        stateTickStartPause = 0;
+        stateTickEndPause = 0;
+        state = VENTILATING;
+        ventilation = OFF;
         return;
-    }
+    }*/
 
     // Vérification des mesures toutes les secondes (et si non pause).
     // TODO Faire en sorte que ce soit indépendant de la la valeur de
     // TICK_TIME
+    time = millis();
 
     if (tickCount % 10 == 0) {
         temperature = (int)sensor.getTemperature();
         humidity = (int)sensor.getHumidity();
 
-        screen.update(state, ventilation, stateTickMax, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, totalTickCount, getTotalTime());
+        screen.update(state, ventilation, cycleDuration, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, totalTickCount, getTotalTime());
 
         if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
             dryer.startHeating();
@@ -126,6 +138,7 @@ void loop()
     }
 
     if (state != VENTILATING) {
+        dryer.stopStiring();
         ventilation = OFF;
     }
 
@@ -146,7 +159,7 @@ void loop()
             state == RESTING;
         }
     }
-    delay(TICK_TIME - (int)(millis() - time)); // prend en compte la durée de l'execution
+    //delay(TICK_TIME - (int)(millis() - time)); // prend en compte la durée de l'execution
                                           // du code pour améliorer la précision.
     tickCount++;
     totalTickCount++;
