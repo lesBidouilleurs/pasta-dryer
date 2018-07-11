@@ -11,13 +11,6 @@
 #define RESTING_HUMIDITY     5
 #define RESTING_TIME         6
 
-#define DELTA_TEMPERATURE 2
-#define DELTA_HUMIDITY    5
-
-// L'humidité est controlé par le petit ventilateur
-// la temperature par le chauffage
-// delta de 2° pour les températures
-// delta de 5% pour l'humidité
 // La deuxième partie du tableau c'est sans le gros ventilateur double sense brasseur
 
 int program[CYCLES_COUNT][7] = {

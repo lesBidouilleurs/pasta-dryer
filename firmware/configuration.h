@@ -16,11 +16,18 @@
 #define SCREEN_NB_COLUMNS    20
 #define SCREEN_NB_ROWS       4
 
+// L'humidité est controlé par le petit ventilateur
+// la temperature par le chauffage
+// delta de 2° pour les températures
+// delta de 5% pour l'humidité
+#define DELTA_TEMPERATURE 2
+#define DELTA_HUMIDITY    5
+
 //#define MIN_2_MS 60000 // Une minute est vraiment une minute
 #define MIN_2_MS 6000 // Une minute est 6s --> pour les tests.
 
-// 100ms semble un délais interressant pour ne rater aucun évènement
-// (bouton appuyé notament)
+// 500ms semble un peu long mais nous sommes sûre que loop est entièrement
+// executé. (environ 340ms max)
 #define TICK_TIME          500 //ms
 
 #endif
