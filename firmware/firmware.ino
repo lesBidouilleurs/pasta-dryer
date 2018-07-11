@@ -76,7 +76,7 @@ int getTotalTime() {
     int totalTime = 0;
     int nbLines = sizeof(program) / 7 / sizeof(int);
     for (size_t line = 0; line < nbLines; line++) {
-        totalTime += program[line][VENTILATING_TIME] + program[line][VENTILATING_PAUSE] + program[line][RESTING_TIME];
+        totalTime += program[line][VENTILATING_TIME] + program[line][RESTING_TIME];
     }
     return totalTime;
 }
@@ -109,6 +109,12 @@ void loop()
         setTargetedValues();
         return;
     }*/
+
+    if (state == END) {
+        dryer.stopAll();
+        screen.end();
+        return;
+    }
 
     loopStartTime = millis();
 
@@ -161,11 +167,14 @@ void loop()
 
     if (state == RESTING) {
         if (tickCount >= cycleTickCount) {
-            // On passe au cycle suivant.
             curCycle++;
-            state = VENTILATING;
-            setTargetedValues();
-            tickCount = 0;
+            if (curCycle >= CYCLES_COUNT) {
+                state = END;
+            } else {
+                state = VENTILATING;
+                setTargetedValues();
+                tickCount = 0;
+            }
         }
     }
 

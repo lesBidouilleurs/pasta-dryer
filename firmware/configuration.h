@@ -11,6 +11,7 @@
 
 #define VENTILATING 0
 #define RESTING     1
+#define END        99
 
 #define SCREEN_ADDRESS       0x3F
 #define SCREEN_NB_COLUMNS    20

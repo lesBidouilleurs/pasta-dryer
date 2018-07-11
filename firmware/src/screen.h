@@ -24,6 +24,7 @@ public:
     void printTime(int curTickCount, int endTickCount, int totalTickCount, int totalTime);
     void hello(void);
     void off(void);
+    void end(void);
 
 private:
     LiquidCrystal_I2C _lcd;
