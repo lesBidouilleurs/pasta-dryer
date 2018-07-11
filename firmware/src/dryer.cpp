@@ -2,7 +2,11 @@
 
 Dryer::Dryer(int heaterPin, int bigFanLeftPin, int bigFanRightPin, int fanExtractPin)
   :_heaterPin(heaterPin), _bigFanRightPin(bigFanRightPin),_bigFanLeftPin(bigFanLeftPin), _fanExtractPin(fanExtractPin)
-{ }
+{
+    this->stiring = OFF;
+    this->heating = OFF;
+    this->drying = OFF;
+}
 
 void Dryer::init(void)
 {
@@ -10,45 +14,76 @@ void Dryer::init(void)
     pinMode(this->_bigFanRightPin, OUTPUT);
     pinMode(this->_bigFanLeftPin, OUTPUT);
     pinMode(this->_fanExtractPin, OUTPUT);
-    this->stopStiring();
-    this->stopHeating();
-    this->stopDrying();
+    this->stopAll();
+
 }
 
 void Dryer::startHeating(void)
 {
-    digitalWrite(this->_heaterPin, 0);
+    if (this->drying == OFF) {
+        digitalWrite(this->_heaterPin, 0);
+        this->drying = ON;
+    }
 }
 
 void Dryer::stopHeating(void)
 {
-    digitalWrite(this->_heaterPin, 1);
+    if (this->drying == ON) {
+        digitalWrite(this->_heaterPin, 1);
+        this->drying = OFF;
+    }
 }
 
 void Dryer::stopStiring(void)
 {
-    digitalWrite(this->_bigFanRightPin, 0);
-    digitalWrite(this->_bigFanLeftPin, 0);
+    if ((this->stiring == RIGHT) or (this->stiring == LEFT)) {
+        digitalWrite(this->_bigFanRightPin, 0);
+        digitalWrite(this->_bigFanLeftPin, 0);
+        this->stiring = OFF;
+    }
 }
 
 void Dryer::rightStiring(void)
 {
-    digitalWrite(this->_bigFanRightPin, 0);
-    digitalWrite(this->_bigFanLeftPin, 1);
+    if ((this->stiring == OFF) or (this->stiring == LEFT)) {
+        digitalWrite(this->_bigFanRightPin, 0);
+        digitalWrite(this->_bigFanLeftPin, 1);
+        this->stiring = RIGHT;
+    }
 }
 
 void Dryer::leftStiring(void)
 {
-    digitalWrite(this->_bigFanRightPin, 1);
-    digitalWrite(this->_bigFanLeftPin, 0);
+    if ((this->stiring == OFF) or (this->stiring == RIGHT)) {
+        digitalWrite(this->_bigFanRightPin, 1);
+        digitalWrite(this->_bigFanLeftPin, 0);
+        this->stiring = LEFT;
+    }
 }
 
 void Dryer::startDrying(void)
 {
-    digitalWrite(this->_fanExtractPin, 1);
+    if (this->stiring == OFF) {
+        digitalWrite(this->_fanExtractPin, 1);
+        this->stiring = ON;
+    }
 }
 
 void Dryer::stopDrying(void)
 {
+    if (this->stiring == ON) {
+        digitalWrite(this->_fanExtractPin, 0);
+        this->stiring = OFF;
+    }
+}
+
+void Dryer::stopAll(void)
+{
     digitalWrite(this->_fanExtractPin, 0);
+    this->stiring = OFF;
+    digitalWrite(this->_bigFanRightPin, 0);
+    digitalWrite(this->_bigFanLeftPin, 0);
+    this->stiring = OFF;
+    digitalWrite(this->_heaterPin, 1);
+    this->drying = OFF;
 }

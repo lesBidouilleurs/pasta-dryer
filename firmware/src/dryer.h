@@ -3,9 +3,18 @@
 
 #include "Arduino.h"
 
+#define OFF   0
+#define ON    1
+#define RIGHT 2
+#define LEFT  4
+
 class Dryer
 {
 public:
+    int stiring;
+    int heating;
+    int drying;
+
     Dryer(int heaterPin, int bigFanLeftPin, int bigFanRightPin, int fanExtractPin);
 
     void init(void);

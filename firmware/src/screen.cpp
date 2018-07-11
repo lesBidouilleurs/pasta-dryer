@@ -8,6 +8,7 @@ void Screen::init()
     this->_lcd.init();
     this->_lcd.backlight();
     this->_lcd.display();
+    this->hello();
 }
 
 void Screen::clear()
@@ -15,41 +16,47 @@ void Screen::clear()
     this->_lcd.clear();
 }
 
-void Screen::update(int state, int ventilation, int endTickCount, int curTickCount, int temperature, int humidity, int targetedTemperature, int targetedHumidity, int curCycle, int totalTickCount, int totalTime)
+void Screen::update(int state, Dryer dryer, int endTickCount, int curTickCount, int temperature, int humidity, int targetedTemperature, int targetedHumidity, int curCycle, int totalTickCount, int totalTime)
 {
     this->_lcd.setCursor(COL1, LINE1);
     this->_lcd.print(this->_getStatus(state));
 
     this->_lcd.setCursor(COL2, LINE1);
-    this->_lcd.print(this->_getVentilation(ventilation));
+    this->_lcd.print(this->_getStiring(dryer.stiring));
 
+    this->_lcd.setCursor(COL1, LINE2);
+    this->_lcd.print("Cyc:");
+    this->_print2digit(curCycle);
+    this->_lcd.print("  ");
+    this->_lcd.print(this->_getHeater(dryer.heating));
+    this->_lcd.print("  ");
+    this->_lcd.print(this->_getExtractor(dryer.drying));
+
+    this->_lcd.setCursor(COL1, LINE3);
     printTemperature(temperature, targetedTemperature);
     printHumidity(humidity, targetedHumidity);
+    this->_lcd.setCursor(COL1, LINE4);
     printTime(curTickCount, endTickCount, totalTickCount, totalTime);
 
-    this->_lcd.setCursor(COL1, LINE4);
-    this->_lcd.print("Cycle:");
-    this->_print2digit(curCycle);
+
 }
 
 void Screen::printTemperature(int temperature, int targetedTemperature)
 {
-    this->_lcd.setCursor(COL1, LINE2);
     this->_lcd.print("T:");
     this->_print2digit(temperature);
     this->_lcd.print("/");
     this->_print2digit(targetedTemperature);
-    this->_lcd.print("d");
+    this->_lcd.print("d  ");
 }
 
 void Screen::printHumidity(int humidity, int targetedHumidity)
 {
-    this->_lcd.setCursor(COL2, LINE2);
     this->_lcd.print("H:");
     this->_print2digit(humidity);
     this->_lcd.print("/");
     this->_print2digit(targetedHumidity);
-    this->_lcd.print("%");
+    this->_lcd.print("%  ");
 }
 
 void Screen::printTime(int curTickCount, int cycleDuration, int totalTickCount, int totalTime)
@@ -57,7 +64,6 @@ void Screen::printTime(int curTickCount, int cycleDuration, int totalTickCount, 
     int curMinute = curTickCount / (MIN_2_MS / TICK_TIME);
     int curTotalMinute = totalTickCount / (MIN_2_MS / TICK_TIME);
 
-    this->_lcd.setCursor(0, 2);
     this->_lcd.print("Tp:");
     this->_print3digit(curMinute);
     this->_lcd.print("/");
@@ -82,21 +88,46 @@ const char *Screen::_getStatus(int status)
     return "Stat:Err ";
 }
 
-const char *Screen::_getVentilation(int ventilation)
+const char *Screen::_getStiring(int fan)
 {
-    if (ventilation == OFF) {
-        return "Vent:off";
+    if (fan == OFF) {
+        return "Vent:off  ";
     }
 
-    if (ventilation == RIGHT) {
-        return "Vent:D  ";
+    if (fan == RIGHT) {
+        return "Vent:droit";
     }
 
-    if (ventilation == LEFT) {
-        return "Vent:G  ";
+    if (fan == LEFT) {
+        return "Vent:Gauch";
     }
 
-    return "Vent:Err";
+    return "Vent:Err  ";
+}
+
+const char *Screen::_getHeater(int heat)
+{
+    if (heat == OFF) {
+        return "C:off";
+    }
+
+    if (heat == ON) {
+        return "C:on ";
+    }
+
+    return "C:Err";
+}
+
+const char *Screen::_getExtractor(int fan)
+{
+    if (fan == OFF) {
+        return "V:off";
+    }
+    if (fan == ON) {
+        return "V:on ";
+    }
+
+    return "V:Err";
 }
 
 void Screen::_print2digit(int integer)
@@ -115,12 +146,22 @@ void Screen::_print3digit(int integer)
     this->_print2digit(integer);
 }
 
-void Screen::off()
+void Screen::hello()
 {
-    this->_lcd.noBacklight();
+    this->_lcd.setCursor(COL1, LINE2);
+    this->_lcd.print("H H EEE L   L   OOO");
+    this->_lcd.setCursor(COL1, LINE3);
+    this->_lcd.print("HHH EE  L   L   O O");
+    this->_lcd.setCursor(COL1, LINE4);
+    this->_lcd.print("H H EEE LLL LLL OOO");
 }
 
-void Screen::on()
+void Screen::off(void)
 {
-    this->init();
+    this->_lcd.setCursor(COL1, LINE2);
+    this->_lcd.print("    OOO FFF FFF    ");
+    this->_lcd.setCursor(COL1, LINE3);
+    this->_lcd.print("    0 0 FF  FF     ");
+    this->_lcd.setCursor(COL1, LINE4);
+    this->_lcd.print("    000 F   F      ");
 }

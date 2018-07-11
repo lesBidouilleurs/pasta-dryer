@@ -12,9 +12,6 @@ Screen screen(SCREEN_ADDRESS, SCREEN_NB_COLUMNS, SCREEN_NB_ROWS);
 
 unsigned short int curCycle;
 unsigned short int state;
-unsigned short int ventilation;
-unsigned int drying;
-unsigned int heating;
 
 unsigned int tickCount;
 unsigned int totalTickCount;
@@ -27,8 +24,8 @@ unsigned int cycleTickCount;
 
 unsigned int cycleDuration; // Durée du cycle en minutes
 
-unsigned int targetedTemperature;
-unsigned int targetedHumidity;
+float targetedTemperature;
+float targetedHumidity;
 unsigned int temperature;
 unsigned int humidity;
 
@@ -54,8 +51,8 @@ void setTargetedValues() {
         return;
     }
 
-    targetedTemperature = program[curCycle][VENTILATING_HEAT];
-    targetedHumidity = program[curCycle][VENTILATING_HUMIDITY];
+    targetedTemperature = (float)program[curCycle][VENTILATING_HEAT];
+    targetedHumidity = (float)program[curCycle][VENTILATING_HUMIDITY];
 
     cycleDuration = program[curCycle][VENTILATING_TIME] + program[curCycle][RESTING_TIME];
 
@@ -86,38 +83,31 @@ int getTotalTime() {
 
 void setup()
 {
+    Serial.begin(115200);
     tickCount = 0;
     totalTickCount = 0;
     curCycle = 0;
-    dryer.stopDrying();
-    dryer.stopStiring();
-    dryer.stopHeating();
     state = VENTILATING;
-    ventilation = OFF;
-    heating = OFF;
-    drying = OFF;
-    Serial.begin(115200);
     sensor.init();
     dryer.init();
     screen.init();
     setTargetedValues();
 
-    screen.update(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    delay(1000);
 }
 
 void loop()
 {
 
     /*if (is_on() ==  false) { // le bonton est sur off
-        //pushReset();
+        // Tout est remis a zéro pour préparer un nouveau départ.
         screen.off();
+        dryer.stopAll();
         tickCount = 0;
         totalTickCount = 0;
         curCycle = 0;
-        stateTickStartPause = 0;
-        stateTickEndPause = 0;
         state = VENTILATING;
-        ventilation = OFF;
+        setTargetedValues();
         return;
     }*/
 
@@ -126,50 +116,41 @@ void loop()
     temperature = (int)sensor.getTemperature();
     humidity = (int)sensor.getHumidity();
 
-    screen.update(state, ventilation, cycleDuration, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, totalTickCount, getTotalTime());
 
     if (temperature < (targetedTemperature - DELTA_TEMPERATURE)) {
         dryer.startHeating();
-        heating = ON;
     }
 
     if (temperature > (targetedTemperature + DELTA_TEMPERATURE)) {
         dryer.stopHeating();
-        heating = OFF;
     }
 
     if (humidity < (targetedHumidity - DELTA_HUMIDITY)) {
         dryer.stopDrying();
-        drying = OFF;
     }
 
     if (humidity > (targetedHumidity + DELTA_HUMIDITY)) {
         dryer.startDrying();
-        drying = ON;
     }
 
     if (state == VENTILATING) {
         if (tickCount < ventilatingLeftTickCount) {
             dryer.leftStiring();
-            ventilation = LEFT;
         }
 
         if (tickCount >= ventilatingLeftTickCount
             and tickCount < (ventilatingLeftTickCount + ventilatingPauseTickCount)
         ) {
             dryer.stopStiring();
-            ventilation = OFF;
         }
 
         if (tickCount >= (ventilatingLeftTickCount + ventilatingPauseTickCount)) {
             dryer.rightStiring();
-            ventilation = RIGHT;
         }
 
         if (tickCount >= (ventilatingLeftTickCount + ventilatingRightTickCount + ventilatingPauseTickCount)) {
             // Passe a repos
             dryer.stopStiring();
-            ventilation = OFF;
             state = RESTING;
             setTargetedValues();
             delay(TICK_TIME - (millis() - loopStartTime));
@@ -188,6 +169,8 @@ void loop()
             tickCount = 0;
         }
     }
+
+    screen.update(state, dryer, cycleDuration, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, totalTickCount, getTotalTime());
 
     //Serial.print("Attends : "); Serial.print(TICK_TIME - (millis() - loopStartTime)); Serial.print("\n\n");
     delay(TICK_TIME - (millis() - loopStartTime));

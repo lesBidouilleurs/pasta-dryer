@@ -1,7 +1,7 @@
 #ifndef PastaDryerProgram_h
 #define PastaDryerProgram_h
 
-#define CYCLES_COUNT        10
+#define CYCLES_COUNT        14
 
 #define VENTILATING_HEAT     0
 #define VENTILATING_HUMIDITY 1
@@ -21,6 +21,9 @@
 // La deuxième partie du tableau c'est sans le gros ventilateur double sense brasseur
 
 int program[CYCLES_COUNT][7] = {
+    {40, 85, 5,  1, 38, 75, 2},
+    {40, 85, 5,  1, 38, 75, 2},
+    {40, 85, 5,  1, 38, 75, 2},
     {40, 85, 20,  1, 38, 75, 5},
     {40, 80, 20,  1, 39, 75, 5},
     {40, 75, 20,  1, 40, 75, 5},
