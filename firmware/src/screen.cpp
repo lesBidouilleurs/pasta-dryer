@@ -37,8 +37,6 @@ void Screen::update(int state, Dryer dryer, int endTickCount, int curTickCount, 
     printHumidity(humidity, targetedHumidity);
     this->_lcd.setCursor(COL1, LINE4);
     printTime(curTickCount, endTickCount, totalTickCount, totalTime);
-
-
 }
 
 void Screen::printTemperature(int temperature, int targetedTemperature)

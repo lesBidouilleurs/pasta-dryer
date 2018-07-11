@@ -4,11 +4,12 @@
 
 #include "configuration.h"
 #include "program.h"
-#include "src/fonction.h"
+#include "src/interface.h"
 
 Dryer dryer(HEATER_PIN, BIG_FAN_LEFT_PIN, BIG_FAN_RIGHT_PIN, FAN_PIN);
-Sensor sensor(DHT_PIN); //DHT_PIN
+Sensor sensor(DHT_PIN);
 Screen screen(SCREEN_ADDRESS, SCREEN_NB_COLUMNS, SCREEN_NB_ROWS);
+Interface interface(BUTTON_ON_OFF_PIN);
 
 unsigned short int curCycle;
 unsigned short int state;
@@ -43,11 +44,6 @@ void setTargetedValues() {
     if (state == RESTING) {
         targetedTemperature = program[curCycle][RESTING_HEAT];
         targetedHumidity = program[curCycle][RESTING_HUMIDITY];
-
-        Serial.print("########################\n# REPOS\n########################\n");
-        Serial.print("Température cible : "); Serial.print(targetedTemperature); Serial.print("\n");
-        Serial.print("Humidité cible : "); Serial.print(targetedHumidity); Serial.print("\n\n\n");
-
         return;
     }
 
@@ -61,15 +57,6 @@ void setTargetedValues() {
     ventilatingRightTickCount = ventilatingLeftTickCount;
     restingTickCount = min2tick(program[curCycle][VENTILATING_PAUSE]);
     cycleTickCount = min2tick(cycleDuration);
-
-    Serial.print("########################\n# Nouveau cycle\n########################\n");
-    Serial.print("Température cible : "); Serial.print(targetedTemperature); Serial.print("\n");
-    Serial.print("Humidité cible : "); Serial.print(targetedHumidity); Serial.print("\n");
-    Serial.print("Durée cyle : "); Serial.print(cycleDuration); Serial.print("min / "); Serial.print(cycleTickCount); Serial.print("ticks \n");
-    Serial.print("Agitation a gauche : "); Serial.print(tick2min(ventilatingLeftTickCount)); Serial.print("min / "); Serial.print(ventilatingLeftTickCount); Serial.print("ticks \n");
-    Serial.print("Agitation a droite : "); Serial.print(tick2min(ventilatingRightTickCount)); Serial.print("min / "); Serial.print(ventilatingRightTickCount); Serial.print("ticks \n");
-    Serial.print("Pause agitation : "); Serial.print(tick2min(ventilatingPauseTickCount)); Serial.print("min / "); Serial.print(ventilatingPauseTickCount); Serial.print("ticks \n");
-    Serial.print("Temps repos : "); Serial.print(tick2min(restingTickCount)); Serial.print("min / "); Serial.print(restingTickCount); Serial.print("ticks \n\n\n");
 }
 
 int getTotalTime() {
@@ -98,7 +85,8 @@ void setup()
 void loop()
 {
 
-    /*if (is_on() ==  false) { // le bonton est sur off
+    if (interface.getButtonOnOff() == OFF) {
+        Serial.print(interface.getButtonOnOff());
         // Tout est remis a zéro pour préparer un nouveau départ.
         screen.off();
         dryer.stopAll();
@@ -108,7 +96,7 @@ void loop()
         state = VENTILATING;
         setTargetedValues();
         return;
-    }*/
+    }
 
     if (state == END) {
         dryer.stopAll();

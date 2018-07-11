@@ -2,7 +2,7 @@
 #define PastaParameters_h
 
 #define DHT_PIN              2
-#define BUTTON_PIN           6
+#define BUTTON_ON_OFF_PIN    6
 #define HEATER_PIN           8
 #define BIG_FAN_LEFT_PIN     9
 #define BIG_FAN_RIGHT_PIN   10
