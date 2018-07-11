@@ -11,9 +11,9 @@
 class Dryer
 {
 public:
-    int stiring;
-    int heating;
-    int drying;
+    int bigfan;
+    int heater;
+    int extractor;
 
     Dryer(int heaterPin, int bigFanLeftPin, int bigFanRightPin, int fanExtractPin);
 

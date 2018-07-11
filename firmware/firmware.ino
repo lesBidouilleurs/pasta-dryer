@@ -92,7 +92,6 @@ void setup()
     dryer.init();
     screen.init();
     setTargetedValues();
-
     delay(1000);
 }
 
@@ -171,8 +170,6 @@ void loop()
     }
 
     screen.update(state, dryer, cycleDuration, tickCount, temperature, humidity, targetedTemperature, targetedHumidity, curCycle, totalTickCount, getTotalTime());
-
-    //Serial.print("Attends : "); Serial.print(TICK_TIME - (millis() - loopStartTime)); Serial.print("\n\n");
     delay(TICK_TIME - (millis() - loopStartTime));
 
     tickCount++;

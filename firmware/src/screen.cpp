@@ -22,15 +22,15 @@ void Screen::update(int state, Dryer dryer, int endTickCount, int curTickCount, 
     this->_lcd.print(this->_getStatus(state));
 
     this->_lcd.setCursor(COL2, LINE1);
-    this->_lcd.print(this->_getStiring(dryer.stiring));
+    this->_lcd.print(this->_getStiring(dryer.bigfan));
 
     this->_lcd.setCursor(COL1, LINE2);
     this->_lcd.print("Cyc:");
     this->_print2digit(curCycle);
     this->_lcd.print("  ");
-    this->_lcd.print(this->_getHeater(dryer.heating));
+    this->_lcd.print(this->_getHeater(dryer.heater));
     this->_lcd.print("  ");
-    this->_lcd.print(this->_getExtractor(dryer.drying));
+    this->_lcd.print(this->_getExtractor(dryer.extractor));
 
     this->_lcd.setCursor(COL1, LINE3);
     printTemperature(temperature, targetedTemperature);
