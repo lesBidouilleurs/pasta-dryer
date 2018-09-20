@@ -25,7 +25,7 @@
 #define DELTA_HUMIDITY    5
 
 //#define MIN_2_MS 60000 // Une minute est vraiment une minute
-#define MIN_2_MS 6000 // Une minute est 6s --> pour les tests.
+#define MIN_2_MS 60000 // Une minute est 6s --> pour les tests.
 
 // 500ms semble un peu long mais nous sommes sûre que loop est entièrement
 // executé. (environ 340ms max)

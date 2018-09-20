@@ -146,12 +146,14 @@ void Screen::_print3digit(int integer)
 
 void Screen::hello()
 {
+    
     this->_lcd.setCursor(COL1, LINE2);
     this->_lcd.print("H H EEE L   L   OOO ");
     this->_lcd.setCursor(COL1, LINE3);
     this->_lcd.print("HHH EE  L   L   O O ");
     this->_lcd.setCursor(COL1, LINE4);
     this->_lcd.print("H H EEE LLL LLL OOO ");
+
 }
 
 void Screen::off(void)
@@ -162,6 +164,10 @@ void Screen::off(void)
     this->_lcd.print("    0 0 FF  FF     ");
     this->_lcd.setCursor(COL1, LINE4);
     this->_lcd.print("    000 F   F      ");
+    delay(3000);
+    this->_lcd.clear();
+    this->_lcd.noBacklight(); //eteindre le retro-eclairage
+    this->_lcd.noDisplay();   //eteind le cristaux liquide
 }
 
 void Screen::end(void)
